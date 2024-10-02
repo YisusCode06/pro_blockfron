@@ -25,7 +25,64 @@
       <div id="mainContent" class="flex-grow-1" :style="{ marginLeft: sidebarCollapsed ? '80px' : '250px' }">
         <h1>Bienvenido a la gestión de Vendedores</h1>
         <p>Aquí puede registrar, listar y gestionar inmuebles.</p>
-        <div id="contentArea" v-html="contentArea"></div> <!-- Área para cargar contenido dinámico -->
+        <div v-if="showForm">
+          <!-- Formulario de Registro de Inmuebles -->
+          <h2>Registro de Inmuebles</h2>
+          <form @submit.prevent="registerProperty">
+            <div class="mb-3">
+              <label for="propertyTitle" class="form-label">Título del Inmueble</label>
+              <input type="text" class="form-control" v-model="property.title" placeholder="Ej. Casa en Lima" required>
+            </div>
+            <div class="mb-3">
+              <label for="propertyDescription" class="form-label">Descripción</label>
+              <textarea class="form-control" v-model="property.description" rows="3" placeholder="Describe el inmueble" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="propertyPrice" class="form-label">Precio</label>
+              <input type="number" class="form-control" v-model="property.price" placeholder="Precio en dólares" required>
+            </div>
+            <div class="mb-3">
+              <label for="propertySize" class="form-label">Tamaño (m²)</label>
+              <input type="number" class="form-control" v-model="property.size" placeholder="Tamaño en metros cuadrados" required>
+            </div>
+            <div class="mb-3">
+              <label for="propertyImages" class="form-label">Imágenes del Inmueble</label>
+              <input type="text" class="form-control" v-model="property.images" placeholder="URL de las imágenes, separadas por comas">
+            </div>
+            <h4>Dirección</h4>
+            <div class="mb-3">
+              <label for="propertyStreet" class="form-label">Calle</label>
+              <input type="text" class="form-control" v-model="property.address.street" placeholder="Calle" required>
+            </div>
+            <div class="mb-3">
+              <label for="propertyCity" class="form-label">Ciudad</label>
+              <input type="text" class="form-control" v-model="property.address.city" placeholder="Ciudad" required>
+            </div>
+            <div class="mb-3">
+              <label for="propertyState" class="form-label">Estado/Provincia</label>
+              <input type="text" class="form-control" v-model="property.address.state" placeholder="Estado/Provincia" required>
+            </div>
+            <div class="mb-3">
+              <label for="propertyPostalCode" class="form-label">Código Postal</label>
+              <input type="text" class="form-control" v-model="property.address.postalCode" placeholder="Código Postal" required>
+            </div>
+            <div class="mb-3">
+              <label for="propertyCountry" class="form-label">País</label>
+              <input type="text" class="form-control" v-model="property.address.country" placeholder="País" required>
+            </div>
+            <div class="mb-3">
+              <label for="isForSale" class="form-label">¿Está en venta?</label>
+              <select class="form-select" v-model="property.isForSale" required>
+                <option value="true" selected>En venta</option>
+                <option value="false">No en venta</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar Inmueble</button>
+          </form>
+        </div>
+
+        <!-- Área para cargar lista de inmuebles -->
+        <div id="contentArea" v-html="contentArea"></div>
       </div>
     </div>
 
@@ -40,12 +97,28 @@ export default {
     return {
       sidebarCollapsed: false,
       contentArea: '',
+      showForm: false,
+      property: {
+        title: '',
+        description: '',
+        price: '',
+        size: '',
+        images: '',
+        address: {
+          street: '',
+          city: '',
+          state: '',
+          postalCode: '',
+          country: ''
+        },
+        isForSale: 'true'
+      }
     };
   },
   mounted() {
     const token = this.getCookie('token');
     if (!token) {
-      window.location.href = '/'; // Cambia '/login' por la URL de tu página de login
+      window.location.href = '/'; // Redirige a login si no hay token
     }
   },
   methods: {
@@ -59,91 +132,34 @@ export default {
       this.sidebarCollapsed = !this.sidebarCollapsed;
     },
     async logout() {
-      // Eliminar las cookies
-      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; // Cambia 'authToken' si es necesario
-      document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/"; // Cambia 'userId' si es necesario
-
-      // Redirigir al usuario a la página de login
-      window.location.href = '/'; // Cambia '/login' por la URL de tu página de login
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+      document.cookie = "userId=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+      window.location.href = '/';
     },
     showRegisterForm() {
-      this.contentArea = `
-        <h2>Registro de Inmuebles</h2>
-        <form id="propertyForm" @submit.prevent="registerProperty">
-          <div class="mb-3">
-            <label for="propertyTitle" class="form-label">Título del Inmueble</label>
-            <input type="text" class="form-control" id="propertyTitle" placeholder="Ej. Casa en Lima" required>
-          </div>
-          <div class="mb-3">
-            <label for="propertyDescription" class="form-label">Descripción</label>
-            <textarea class="form-control" id="propertyDescription" rows="3" placeholder="Describe el inmueble" required></textarea>
-          </div>
-          <div class="mb-3">
-            <label for="propertyPrice" class="form-label">Precio</label>
-            <input type="number" class="form-control" id="propertyPrice" placeholder="Precio en dólares" required>
-          </div>
-          <div class="mb-3">
-            <label for="propertySize" class="form-label">Tamaño (m²)</label>
-            <input type="number" class="form-control" id="propertySize" placeholder="Tamaño en metros cuadrados" required>
-          </div>
-          <div class="mb-3">
-            <label for="propertyImages" class="form-label">Imágenes del Inmueble</label>
-            <input type="text" class="form-control" id="propertyImages" placeholder="URL de las imágenes, separadas por comas">
-          </div>
-          <h4>Dirección</h4>
-          <div class="mb-3">
-            <label for="propertyStreet" class="form-label">Calle</label>
-            <input type="text" class="form-control" id="propertyStreet" placeholder="Calle" required>
-          </div>
-          <div class="mb-3">
-            <label for="propertyCity" class="form-label">Ciudad</label>
-            <input type="text" class="form-control" id="propertyCity" placeholder="Ciudad" required>
-          </div>
-          <div class="mb-3">
-            <label for="propertyState" class="form-label">Estado/Provincia</label>
-            <input type="text" class="form-control" id="propertyState" placeholder="Estado/Provincia" required>
-          </div>
-          <div class="mb-3">
-            <label for="propertyPostalCode" class="form-label">Código Postal</label>
-            <input type="text" class="form-control" id="propertyPostalCode" placeholder="Código Postal" required>
-          </div>
-          <div class="mb-3">
-            <label for="propertyCountry" class="form-label">País</label>
-            <input type="text" class="form-control" id="propertyCountry" placeholder="País" required>
-          </div>
-          <div class="mb-3">
-            <label for="isForSale" class="form-label">¿Está en venta?</label>
-            <select class="form-select" id="isForSale" required>
-              <option value="true" selected>En venta</option>
-              <option value="false">No en venta</option>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">Registrar Inmueble</button>
-        </form>
-      `;
+      this.showForm = true;
     },
     async registerProperty() {
-      const ownerId = this.getCookie('userId'); // Asumimos que la cookie se llama 'userId'
-
+      const ownerId = this.getCookie('userId'); // Obtenemos el ID del usuario desde las cookies
       if (!ownerId) {
         alert('No se encontró el ID del usuario en las cookies');
         return;
       }
 
       const propertyData = {
-        title: document.getElementById('propertyTitle').value,
-        description: document.getElementById('propertyDescription').value,
-        price: parseFloat(document.getElementById('propertyPrice').value),
-        size: parseFloat(document.getElementById('propertySize').value),
-        images: document.getElementById('propertyImages').value.split(',').map(img => img.trim()),
+        title: this.property.title,
+        description: this.property.description,
+        price: parseFloat(this.property.price),
+        size: parseFloat(this.property.size),
+        images: this.property.images.split(',').map(img => img.trim()),
         address: {
-          street: document.getElementById('propertyStreet').value,
-          city: document.getElementById('propertyCity').value,
-          state: document.getElementById('propertyState').value,
-          postalCode: document.getElementById('propertyPostalCode').value,
-          country: document.getElementById('propertyCountry').value,
+          street: this.property.address.street,
+          city: this.property.address.city,
+          state: this.property.address.state,
+          postalCode: this.property.address.postalCode,
+          country: this.property.address.country,
         },
-        isForSale: document.getElementById('isForSale').value === 'true',
+        isForSale: this.property.isForSale === 'true',
         owner: ownerId,
       };
 
@@ -159,6 +175,7 @@ export default {
         const result = await response.json();
         if (response.ok) {
           alert('Inmueble registrado con éxito');
+          this.showForm = false;
           this.contentArea = ''; // Limpia el área de contenido
         } else {
           alert('Error al registrar el inmueble: ' + result.message);
@@ -181,7 +198,6 @@ export default {
         return;
       }
 
-      // Obtener la lista de inmuebles desde la API
       try {
         const response = await fetch(`https://pro-block.vercel.app/api/v1/property?ownerId=${userId}`);
         const properties = await response.json();
@@ -196,7 +212,7 @@ export default {
               <div class="card-body">
                 <h5 class="card-title">${property.title}</h5>
                 <p class="card-text">${property.description}</p>
-                <p class="card-text"><strong>Precio:</strong> Tez${property.price}</p>
+                <p class="card-text"><strong>Precio:</strong> $${property.price}</p>
                 <p class="card-text"><strong>Tamaño:</strong> ${property.size} m²</p>
                 <p class="card-text"><strong>Dirección:</strong> ${property.address.street}, ${property.address.city}, ${property.address.state}, ${property.address.postalCode}, ${property.address.country}</p>
                 <p class="card-text"><strong>Estado:</strong> ${property.isForSale ? 'En venta' : 'No en venta'}</p>

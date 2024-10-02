@@ -230,7 +230,7 @@ export default {
                 await operation.confirmation();
                 this.transactionHash = operation.opHash;
                 console.info(`Transacción exitosa: ${this.transactionHash}`);
-
+                alert(`Transacción exitosa!  Token de Contrato Inteligente: ${this.transactionHash}`);
                 // Actualizar la propiedad en el servidor (isForSale a false)
                 await this.updatePropertyStatus(this.selectedPropertyId);
             } catch (err) {
