@@ -50,7 +50,9 @@
                         </div>
 
                         <div class="card-body">
-                            <p class="card-text">Vendido por: {{ getUsername(property.owner) }}</p>
+                            <p class="card-text" v-if="property.ownerName">Vendido por: {{ property.ownerName }}</p>
+                            <p class="card-text" v-else>Vendido por: Cargando...</p>
+
                             <h5 class="card-title">{{ property.title }}</h5>
                             <p class="card-text">{{ property.description }}</p>
                             <p class="card-text"><strong>Precio:</strong> XTZ/ {{ property.price }}</p>
@@ -140,6 +142,11 @@ export default {
                 const response = await fetch('https://pro-block.vercel.app/api/v1/property');
                 const properties = await response.json();
                 this.properties = properties.filter(property => property.isForSale);
+
+                // Preload usernames for all properties
+                for (let property of this.properties) {
+                    property.ownerName = await this.getUsername(property.owner); // Almacena el nombre del propietario
+                }
             } catch (error) {
                 console.error('Error al cargar los inmuebles:', error);
             } finally {
@@ -152,7 +159,6 @@ export default {
             try {
                 const response = await fetch(`https://pro-block.vercel.app/api/v1/user/${ownerId}`);
                 const user = await response.json();
-                this.walletAddress = user.walletAddress;
                 return user.username || 'Desconocido';
             } catch (error) {
                 console.error(`Error al obtener el usuario con ID ${ownerId}:`, error);
