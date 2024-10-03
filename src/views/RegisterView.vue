@@ -121,15 +121,29 @@ export default {
         });
 
         if (response.ok) {
-          alert('Usuario registrado con éxito');
-          window.location.href = '/';
+          // SweetAlert2 para éxito
+          Swal.fire({
+            icon: 'success',
+            title: 'Usuario registrado con éxito',
+            showConfirmButton: false,
+            timer: 1500
+          });
+          setTimeout(() => window.location.href = '/', 1500); // Redirige después de 1.5 segundos
         } else {
           const errorData = await response.json();
-          alert(`Error: ${errorData.message}`);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error en el registro',
+            text: errorData.message || 'Ocurrió un error'
+          });
         }
       } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al registrar el usuario'
+        });
         console.error('Error al registrar el usuario:', error);
-        alert('Error al registrar el usuario');
       }
     };
 
@@ -139,22 +153,190 @@ export default {
     };
   }
 };
+const registerUser = async () => {
+  // Validar campos antes de enviar
+  if (!user.value.username || !user.value.email || !user.value.password) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Por favor completa todos los campos obligatorios.'
+    });
+    return;
+  }
+
+  // Validar el formato del correo electrónico
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(user.value.email)) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Por favor ingresa un correo electrónico válido.'
+    });
+    return;
+  }
+
+  // Continuar con el registro si las validaciones pasan
+  try {
+    const response = await fetch('https://pro-block.vercel.app/api/v1/user/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(user.value)
+    });
+
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Usuario registrado con éxito',
+        showConfirmButton: false,
+        timer: 1500
+      });
+      setTimeout(() => window.location.href = '/', 1500);
+    } else {
+      const errorData = await response.json();
+      Swal.fire({
+        icon: 'error',
+        title: 'Error en el registro',
+        text: errorData.message || 'Ocurrió un error'
+      });
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Error al registrar el usuario'
+    });
+    console.error('Error al registrar el usuario:', error);
+  }
+};
+
 </script>
 
 <style scoped>
-.container {
-  background-color: #f8f9fa;
+/* Estilo general para ambos formularios */
+html, body {
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
 }
-.card {
+
+.cont-gen {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f0f4f8;
+}
+
+
+
+.heading {
+  text-align: center;
+  font-weight: bold;
+  font-size: 30px;
+  color: rgb(5, 128, 204);
+  margin-bottom: 20px;
+}
+
+input.input, .form-control {
+  width: 100%;
+  background: white;
+  border: none;
+  padding: 15px 20px;
   border-radius: 20px;
+  margin-top: 15px;
+  box-shadow: #cff0ff 0px 10px 10px -5px;
+  border-inline: 2px solid transparent;
 }
-.card-body {
-  padding: 2rem;
+
+input.input::placeholder, .form-control::placeholder {
+  color: rgb(170, 170, 170);
 }
-.btn {
-  border-radius: 10px;
+
+input.input:focus, .form-control:focus {
+  outline: none;
+  border-inline: 2px solid #12B1D1;
 }
+
+button.btn, input.login-button {
+  width: 100%;
+  font-weight: bold;
+  background: linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%);
+  color: white;
+  padding-block: 15px;
+  margin: 20px auto;
+  border-radius: 20px;
+  border: none;
+  box-shadow: rgba(133, 189, 215, 0.878) 0px 20px 10px -15px;
+  transition: all 0.2s ease-in-out;
+}
+
+button.btn:hover, input.login-button:hover {
+  transform: scale(1.03);
+  box-shadow: rgba(133, 189, 215, 0.878) 0px 23px 10px -20px;
+}
+
+.agreement, .forgot-password a {
+  font-size: 12px;
+  text-decoration: none;
+  color: #0099ff;
+  text-align: center;
+  display: block;
+}
+
 a:hover {
   text-decoration: underline;
 }
+
+/* Estilo específico para el formulario de Registro */
+.form-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.card {
+  border-radius: 20px;
+}
+
+.card-body {
+  padding: 2rem;
+  background-color: #fff;
+}
+
+.row {
+  margin-bottom: 15px;
+}
+
+select.form-select {
+  padding: 15px;
+  border-radius: 20px;
+  box-shadow: #cff0ff 0px 10px 10px -5px;
+  border-inline: 2px solid transparent;
+}
+
+select.form-select:focus {
+  outline: none;
+  border-inline: 2px solid #12B1D1;
+}
+
+/* Estilo específico para el formulario de Iniciar Sesión */
+.form {
+  text-align: center;
+}
+
+input[type="submit"], .login-button {
+  background: linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%);
+  color: #fff;
+  padding-block: 15px;
+  border-radius: 20px;
+  border: none;
+  box-shadow: rgba(133, 189, 215, 0.878) 0px 20px 10px -15px;
+  transition: all 0.2s ease-in-out;
+}
+
+input[type="submit"]:hover, .login-button:hover {
+  transform: scale(1.03);
+  box-shadow: rgba(133, 189, 215, 0.878) 0px 23px 10px -20px;
+}
+
 </style>

@@ -9,12 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@temple-wallet/dapp": "^8.0.0",
-    "vue": "^3.4.29",
-    "vue-router": "^4.3.3",
     "@airgap/beacon-sdk": "^4.3.0",
     "@taquito/beacon-wallet": "^20.0.1",
-    "@taquito/taquito": "^17.0.0"
+    "@taquito/taquito": "^17.0.0",
+    "@temple-wallet/dapp": "^8.0.0",
+    "axios": "^1.7.7",
+    "sweetalert2": "^11.14.1",
+    "vue": "^3.4.29",
+    "vue-router": "^4.3.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",
