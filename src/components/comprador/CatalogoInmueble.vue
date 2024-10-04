@@ -16,7 +16,7 @@ const transaccionHash = ref(null); //
 const termsConditions = ref([
     { text: 'El vendedor entregará el bien, siempre y cuando se le haya transferido la cantidad acordada y esté verificado por el notario.', accepted: false },
     { text: 'El vendedor se compromete a mantener la seguridad y confidencialidad de la información del comprador.', accepted: false },
-    { text: 'Se cobrará 10 tez para la comisión del notario.', accepted: false }
+    { text: 'El comprador debera abonar un porcentaje al notario para la aprobacion de su transaccion', accepted: false }
 ]);
 
 // Función para obtener cookies
