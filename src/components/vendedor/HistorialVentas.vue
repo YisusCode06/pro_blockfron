@@ -14,7 +14,7 @@ const getCookie = (name) => {
   return null;
 };
 
-// Función para filtrar las propiedades por dueño y en venta
+// Función para filtrar las propiedades por dueño y ya vendidas (no en venta)
 const filterPropertiesByOwner = () => {
   if (userData.value && userData.value._id) {
     filteredProperties.value = propertyData.value.filter(
@@ -58,11 +58,15 @@ onMounted(async () => {
 
 <template>
   <div class="container">
-    <h1>Mis Inmuebles Vendidos</h1>
+    <h1 class="Titulo">Catálogo de Inmuebles</h1>
+
     <div class="row">
       <!-- Iteramos sobre los inmuebles filtrados para mostrarlos en tarjetas -->
       <div v-for="property in filteredProperties" :key="property._id" class="col-md-4 mb-4">
-        <div class="card h-100">
+        <div class="card_box">
+          <!-- Mostrar el estado "vendido" con un banner -->
+          <span></span>
+
           <!-- Mostrar la imagen principal del inmueble -->
           <img :src="property.images[0]" class="card-img-top" alt="Imagen del inmueble" />
 
@@ -85,10 +89,6 @@ onMounted(async () => {
               {{ property.address.state }}, {{ property.address.country }}
             </p>
 
-            <!-- Estado de venta -->
-            <p class="card-text">
-              <strong>Estado:</strong> {{ property.isForSale ? 'En venta' : 'No está en venta (VENDIDO)' }}
-            </p>
           </div>
 
           <!-- Mostrar la fecha de creación del inmueble -->
@@ -102,8 +102,84 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.card-img-top {
-  object-fit: cover;
+/* Estilo de la tarjeta */
+.card_box {
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  background: linear-gradient(170deg, rgba(58, 56, 56, 0.623) 0%, rgb(31, 31, 31) 100%);
+  position: relative;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.55);
+  cursor: pointer;
+  transition: all .3s;
+}
+
+.card_box:hover {
+  transform: scale(0.95);
+}
+
+.card_box img {
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  width: 100%;
   height: 200px;
+  object-fit: cover;
+}
+
+.card_box span {
+  position: absolute;
+  overflow: hidden;
+  width: 150px;
+  height: 150px;
+  top: -10px;
+  left: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card_box span::before {
+  content: 'Vendido';
+  position: absolute;
+  width: 150%;
+  height: 40px;
+  background-image: linear-gradient(45deg, #ff6547 0%, #ffb144 51%, #ff7053 100%);
+  transform: rotate(-45deg) translateY(-20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.23);
+}
+
+.card_box span::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  bottom: 0;
+  left: 0;
+  height: 10px;
+  z-index: -1;
+  box-shadow: 140px -140px #cc3f47;
+  background-image: linear-gradient(45deg, #FF512F 0%, #F09819 51%, #FF512F 100%);
+}
+
+.card-footer {
+  text-align: center;
+}
+.Titulo {
+    color: white;
+    background-color: #27272A;
+    text-align: center;
+    /* Centra el texto */
+    padding: 10px;
+    /* Opcional: Espaciado interno para mejorar el aspecto */
+    margin-bottom:40px ;
+}
+.container{
+  color: white;
 }
 </style>
