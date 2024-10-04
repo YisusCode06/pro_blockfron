@@ -43,27 +43,97 @@ const getOwnerUsername = (ownerId) => {
 // Función para obtener el addressWallet del dueño de la propiedad
 const getOwnerWallet = (ownerId) => {
     const owner = usersData.value.find(user => user._id === ownerId);
-    return owner ? owner.addressWallet : 'Desconocido';
+    // Verifica si el propietario existe y tiene la propiedad addressWallet
+    return owner && owner.walletAddress ? owner.walletAddress : 'Desconocido';
 };
 
 // Función que se ejecuta al aceptar los términos
-const acceptTermsAndBuy = () => {
-    // Verifica si todos los términos han sido aceptados
+const acceptTermsAndBuy = async () => {
     const allAccepted = termsConditions.value.every(term => term.accepted);
     if (!allAccepted) {
         alert('Debe aceptar todos los términos y condiciones.');
         return;
     }
 
-    // Imprimir el precio de la propiedad seleccionada
     if (selectedProperty.value) {
         console.log('Precio de la propiedad:', selectedProperty.value.price);
         console.log('Dirección del propietario:', getOwnerWallet(selectedProperty.value.owner));
+
+        await connectWallet(); // Esperar la conexión a la wallet
+        await sendTezos(selectedProperty.value.price, getOwnerWallet(selectedProperty.value.owner)); // Esperar el envío de Tezos
+        await updatePropertyStatus(selectedProperty.value._id); // Actualizar el estado de la propiedad
     }
 
-    // Ocultar el modal
     showModal.value = false;
 };
+
+const wallet = ref(null);
+const tezos = ref(null);
+
+const connectWallet = async () => {
+    try {
+        const available = await TempleWallet.isAvailable();
+        if (!available) {
+            throw new Error("Temple Wallet no está instalado");
+        }
+
+        wallet.value = new TempleWallet("Mi DApp");
+        await wallet.value.connect("ghostnet");
+        tezos.value = wallet.value.toTezos();
+        const walletAddress = await tezos.value.wallet.pkh();
+        console.info(`Dirección conectada: ${walletAddress}`);
+    } catch (err) {
+        console.error('Error al conectar la wallet:', err);
+    }
+};
+
+const sendTezos = async (amountInTezos, recipientWalletAddress) => {
+    try {
+        if (!wallet.value || !wallet.value.connected) {
+            throw new Error("Temple Wallet no está conectado. Conéctalo primero.");
+        }
+
+        console.log("Cantidad en Tezos:", amountInTezos);
+
+        const operation = await tezos.value.wallet.transfer({
+            to: recipientWalletAddress, // Corregido nombre de variable
+            amount: amountInTezos,
+        }).send();
+
+        await operation.confirmation();
+        const transactionHash = operation.opHash;
+        console.info(`Transacción exitosa: ${transactionHash}`);
+        alert(`Transacción exitosa! Token de Contrato Inteligente: ${transactionHash}`);
+    } catch (err) {
+        console.error('Error al enviar Tezos:', err);
+    }
+};
+
+
+// Actualizar el campo isForSale de la propiedad en la API
+const updatePropertyStatus = async (propertyId) => {
+    try {
+        const response = await fetch(`https://pro-block.vercel.app/api/v1/property/${propertyId}`, {
+            method: 'PUT', 
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ isForSale: false }) 
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al actualizar el estado de la propiedad');
+        }
+
+        console.log(`Propiedad ${propertyId} actualizada exitosamente.`);
+        // Volver a cargar los datos del catálogo
+        await filterPropertiesByOwner();
+    } catch (error) {
+        console.error('Error al actualizar la propiedad:', error);
+    }
+};
+
+
 
 // Cuando el componente se monta, obtenemos los datos del usuario
 onMounted(async () => {
