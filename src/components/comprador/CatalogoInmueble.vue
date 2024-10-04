@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { TempleWallet } from "@temple-wallet/dapp";
+import Swal from 'sweetalert2'; // Importamos SweetAlert2
 
 const userData = ref(null);
 const propertyData = ref([]);
@@ -52,9 +53,14 @@ const getOwnerWallet = (ownerId) => {
 const acceptTermsAndBuy = async () => {
     const allAccepted = termsConditions.value.every(term => term.accepted);
     if (!allAccepted) {
-        alert('Debe aceptar todos los términos y condiciones.');
+        Swal.fire({
+            icon: 'error',
+            title: 'Faltan términos por aceptar',
+            text: 'Debe aceptar todos los términos y condiciones antes de continuar.',
+        });
         return;
     }
+
 
     if (selectedProperty.value) {
         console.log('Precio de la propiedad:', selectedProperty.value.price);
@@ -65,7 +71,7 @@ const acceptTermsAndBuy = async () => {
             await sendTezos(selectedProperty.value.price, getOwnerWallet(selectedProperty.value.owner)); // Esperar el envío de Tezos
             await registerTransactions(selectedProperty.value._id, userData.value._id, selectedProperty.value.owner, transaccionHash, selectedProperty.value.price); // Actualizar la propiedad del propietario
             await updatePropertyStatus(selectedProperty.value._id); // Actualizar el estado de la propiedad
-            
+
         } catch (err) {
             // Si hay un error en connectWallet o sendTezos, el flujo se detiene aquí.
             console.error("Error en el proceso de compra:", err);
@@ -222,44 +228,40 @@ const openBuyModal = (property) => {
 
 <template>
     <div class="container">
-        <h1>Catálogo de Inmuebles</h1>
+        <h1 class="Titulo">Catálogo de Inmuebles</h1>
+        <br>
         <div class="row">
+
             <!-- Iteramos sobre los inmuebles filtrados para mostrarlos en tarjetas -->
             <div v-for="property in filteredProperties" :key="property._id" class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <!-- Mostrar la imagen principal del inmueble -->
-                    <img :src="property.images[0]" class="card-img-top" alt="Imagen del inmueble" />
-
-                    <div class="card-body">
-                        <!-- Título del inmueble -->
-                        <h5 class="card-title">{{ property.title }}</h5>
-
-                        <!-- Descripción breve -->
-                        <p class="card-text">{{ property.description }}</p>
-
-                        <!-- Precio del inmueble -->
-                        <p class="card-text"><strong>Precio:</strong> ${{ property.price }}</p>
-
-                        <!-- Tamaño del inmueble -->
-                        <p class="card-text"><strong>Tamaño:</strong> {{ property.size }} m²</p>
-
-                        <!-- Dirección del inmueble -->
-                        <p class="card-text">
-                            <strong>Dirección:</strong> {{ property.address.street }}, {{ property.address.city }},
-                            {{ property.address.state }}, {{ property.address.country }}
-                        </p>
-
-                        <!-- Estado de venta -->
-                        <p class="card-text">
-                            <strong>Estado:</strong> {{ property.isForSale ? 'En venta' : 'No está en venta' }}
-                        </p>
+                <div class="card">
+                    <div class="image_container">
+                        <!-- Mostrar la imagen principal del inmueble -->
+                        <img :src="property.images[0]" class="image" alt="Imagen del inmueble" />
                     </div>
-                    <button type="button" class="btn btn-success" @click="openBuyModal(property)">Comprar</button>
-                    <!-- Mostrar la fecha de creación del inmueble -->
+
+                    <div class="title">
+                        <span>{{ property.title }}</span>
+                    </div>
+                    <div class="des">
+                        <span>{{ property.description }} </span>
+                    </div>
+                    <div class="size">
+                        <span>{{ property.size }} m²</span>
+                    </div>
+
+                    <div class="action">
+                        <div class="price">
+                            <span> {{ property.price }} TEZ</span>
+                        </div>
+                        <button class="btn" @click="openBuyModal(property)">
+                            Comprar
+                        </button>
+                    </div>
                     <div class="card-footer text-muted">
-                        Publicado el: {{ new Date(property.createdAt).toLocaleDateString() }}
+                        Fecha de publicacion: {{ new Date(property.createdAt).toLocaleDateString() }}
                         <br>
-                        Vendido por: {{ getOwnerUsername(property.owner) }}
+                        Propietario Actual: {{ getOwnerUsername(property.owner) }}
                     </div>
                 </div>
             </div>
@@ -306,5 +308,228 @@ const openBuyModal = (property) => {
     padding: 20px;
     border-radius: 8px;
     width: 400px;
+}
+
+.card {
+    --bg-card: #27272a;
+    --primary: #6d28d9;
+    --primary-800: #4c1d95;
+    --primary-shadow: #2e1065;
+    --light: #d9d9d9;
+    --zinc-800: #18181b;
+    --bg-linear: linear-gradient(0deg, var(--primary) 50%, var(--light) 125%);
+
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    /* Aumentamos el espacio entre los elementos */
+
+    padding: 2rem;
+    /* Aumentamos el padding */
+    width: 22rem;
+    /* Aumentamos el ancho de la tarjeta */
+    background-color: var(--bg-card);
+
+    border-radius: 1rem;
+}
+
+.image_container {
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    height: 12rem;
+    background-color: var(--primary-800);
+    border-radius: 0.5rem;
+}
+
+.image_container .image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--light);
+    text-transform: capitalize;
+}
+
+.size {
+    font-size: 1rem;
+    color: var(--light);
+}
+
+.des {
+    font-size: 1rem;
+    color: var(--light);
+}
+
+
+.action {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--light);
+}
+
+.cart-button {
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary);
+    color: var(--light);
+    border: none;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.cart-button:hover {
+    background-color: var(--primary-800);
+}
+
+.card-footer {
+    font-size: 1rem;
+    color: #ffffff;
+    /* Cambiamos el color a blanco */
+}
+
+/* Estilos para el modal */
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+}
+
+.Titulo {
+    color: white;
+    background-color: #27272A;
+    text-align: center;
+    /* Centra el texto */
+    padding: 10px;
+    /* Opcional: Espaciado interno para mejorar el aspecto */
+}
+
+/* From Uiverse.io by kleenpulse */
+.btn {
+    --border-color: linear-gradient(-45deg, #ffae00, #7e03aa, #00fffb);
+    --border-width: 0.125em;
+    --curve-size: 0.5em;
+    --blur: 30px;
+    --bg: #080312;
+    --color: #afffff;
+    color: var(--color);
+    cursor: pointer;
+    /* use position: relative; so that BG is only for .btn */
+    position: relative;
+    isolation: isolate;
+    display: inline-grid;
+    place-content: center;
+    padding: 0.5em 1.5em;
+    font-size: 17px;
+    border: 0;
+    text-transform: uppercase;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.6);
+    clip-path: polygon(
+            /* Top-left */
+            0% var(--curve-size),
+            var(--curve-size) 0,
+            /* top-right */
+            100% 0,
+            100% calc(100% - var(--curve-size)),
+            /* bottom-right 1 */
+            calc(100% - var(--curve-size)) 100%,
+            /* bottom-right 2 */
+            0 100%);
+    transition: color 250ms;
+}
+
+.btn::after,
+.btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.btn::before {
+    background: var(--border-color);
+    background-size: 300% 300%;
+    animation: move-bg7234 5s ease infinite;
+    z-index: -2;
+}
+
+@keyframes move-bg7234 {
+    0% {
+        background-position: 31% 0%;
+    }
+
+    50% {
+        background-position: 70% 100%;
+    }
+
+    100% {
+        background-position: 31% 0%;
+    }
+}
+
+.btn::after {
+    background: var(--bg);
+    z-index: -1;
+    clip-path: polygon(
+            /* Top-left */
+            var(--border-width) calc(var(--curve-size) + var(--border-width) * 0.5),
+            calc(var(--curve-size) + var(--border-width) * 0.5) var(--border-width),
+            /* top-right */
+            calc(100% - var(--border-width)) var(--border-width),
+            calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)),
+            /* bottom-right 1 */
+            calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)),
+            /* bottom-right 2 */
+            var(--border-width) calc(100% - var(--border-width)));
+    transition: clip-path 500ms;
+}
+
+.btn:where(:hover, :focus)::after {
+    clip-path: polygon(
+            /* Top-left */
+            calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)),
+            calc(100% - var(--border-width)) var(--border-width),
+            /* top-right */
+            calc(100% - var(--border-width)) var(--border-width),
+            calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)),
+            /* bottom-right 1 */
+            calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)),
+            /* bottom-right 2 */
+            calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)));
+    transition: 200ms;
+}
+
+.btn:where(:hover, :focus) {
+    color: #fff;
 }
 </style>
