@@ -9,6 +9,7 @@ const filteredProperties = ref([]); // Propiedades filtradas
 const usersData = ref([]); // Cambiar a un array porque contiene una lista de usuarios
 const selectedProperty = ref(null); // Propiedad seleccionada al hacer clic en "Comprar"
 const showModal = ref(false); // Estado para mostrar/ocultar el modal
+const transaccionHash = ref(null); //
 
 // Términos y condiciones
 const termsConditions = ref([
@@ -61,6 +62,7 @@ const acceptTermsAndBuy = async () => {
 
         await connectWallet(); // Esperar la conexión a la wallet
         await sendTezos(selectedProperty.value.price, getOwnerWallet(selectedProperty.value.owner)); // Esperar el envío de Tezos
+        await registerTransactions(selectedProperty.value._id, userData.value._id, selectedProperty.value.owner, transaccionHash, selectedProperty.value.price); // Actualizar la propiedad del propietario
         await updatePropertyStatus(selectedProperty.value._id); // Actualizar el estado de la propiedad
     }
 
@@ -101,12 +103,37 @@ const sendTezos = async (amountInTezos, recipientWalletAddress) => {
         }).send();
 
         await operation.confirmation();
-        const transactionHash = operation.opHash;
-        console.info(`Transacción exitosa: ${transactionHash}`);
-        alert(`Transacción exitosa! Token de Contrato Inteligente: ${transactionHash}`);
+        transaccionHash.value = operation.opHash;
+        console.info(`Transacción exitosa: ${transaccionHash}`);
+        alert(`Transacción exitosa! Token de Contrato Inteligente: ${transaccionHash}`);
     } catch (err) {
         console.error('Error al enviar Tezos:', err);
     }
+};
+
+const registerTransactions = async (idproperty, idbuyer, idseller, transaccionHash, amount) => {
+    const transactionData = {
+        property: idproperty,
+        buyer: idbuyer,
+        seller: idseller,
+        transactionHash: transaccionHash.value,
+        amount: amount,
+    };
+    console.log(transactionData);
+    try {
+        const response = await axios.post('https://pro-block.vercel.app/api/v1/transaction', transactionData, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        alert("Transaccion registrada exitosamente");
+        window.location.reload();
+    } catch (error) {
+        console.error('Error al registrar la transaccion:', error);
+        alert('Hubo un error al registrar la transaccion');
+    }
+
 };
 
 
@@ -114,11 +141,11 @@ const sendTezos = async (amountInTezos, recipientWalletAddress) => {
 const updatePropertyStatus = async (propertyId) => {
     try {
         const response = await fetch(`https://pro-block.vercel.app/api/v1/property/${propertyId}`, {
-            method: 'PUT', 
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ isForSale: false }) 
+            body: JSON.stringify({ isForSale: false })
         });
 
         if (!response.ok) {
