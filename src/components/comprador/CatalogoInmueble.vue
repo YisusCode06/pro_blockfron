@@ -60,13 +60,22 @@ const acceptTermsAndBuy = async () => {
         console.log('Precio de la propiedad:', selectedProperty.value.price);
         console.log('Dirección del propietario:', getOwnerWallet(selectedProperty.value.owner));
 
-        await connectWallet(); // Esperar la conexión a la wallet
-        await sendTezos(selectedProperty.value.price, getOwnerWallet(selectedProperty.value.owner)); // Esperar el envío de Tezos
-        await registerTransactions(selectedProperty.value._id, userData.value._id, selectedProperty.value.owner, transaccionHash, selectedProperty.value.price); // Actualizar la propiedad del propietario
-        await updatePropertyStatus(selectedProperty.value._id); // Actualizar el estado de la propiedad
+        try {
+            await connectWallet(); // Esperar la conexión a la wallet
+            await sendTezos(selectedProperty.value.price, getOwnerWallet(selectedProperty.value.owner)); // Esperar el envío de Tezos
+            await registerTransactions(selectedProperty.value._id, userData.value._id, selectedProperty.value.owner, transaccionHash, selectedProperty.value.price); // Actualizar la propiedad del propietario
+            await updatePropertyStatus(selectedProperty.value._id); // Actualizar el estado de la propiedad
+            
+        } catch (err) {
+            // Si hay un error en connectWallet o sendTezos, el flujo se detiene aquí.
+            console.error("Error en el proceso de compra:", err);
+            alert("Hubo un error en la transacción. Intente de nuevo.");
+            return; // Detener ejecución si hay algún error
+        }
     }
 
     showModal.value = false;
+    window.location.reload();
 };
 
 const wallet = ref(null);
@@ -128,7 +137,6 @@ const registerTransactions = async (idproperty, idbuyer, idseller, transaccionHa
         });
 
         alert("Transaccion registrada exitosamente");
-        window.location.reload();
     } catch (error) {
         console.error('Error al registrar la transaccion:', error);
         alert('Hubo un error al registrar la transaccion');
