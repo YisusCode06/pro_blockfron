@@ -39,7 +39,7 @@ export default {
       document.cookie = `${name}=${value}; path=/; max-age=${maxAge};`;
     },
     async login() {
-      const tokenExpiration = this.rememberMe ? 7 * 24 * 60 * 60 : 60 * 60; // 7 días o 1 hora en segundos
+      const tokenExpiration = this.rememberMe ? 7 * 24 * 60 * 60 : 5 * 60 * 60; // 7 días o 5 horas en segundos
 
       try {
         const response = await fetch('https://pro-block.vercel.app/api/v1/user/login', {
