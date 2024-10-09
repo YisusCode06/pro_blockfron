@@ -61,7 +61,6 @@ const acceptTermsAndBuy = async () => {
         return;
     }
 
-
     if (selectedProperty.value) {
         console.log('Precio de la propiedad:', selectedProperty.value.price);
         console.log('Dirección del propietario:', getOwnerWallet(selectedProperty.value.owner));
@@ -69,7 +68,7 @@ const acceptTermsAndBuy = async () => {
         try {
             await connectWallet(); // Esperar la conexión a la wallet
             await sendTezos(selectedProperty.value.price, getOwnerWallet(selectedProperty.value.owner)); // Esperar el envío de Tezos
-            await registerTransactions(selectedProperty.value._id, userData.value._id, selectedProperty.value.owner, transaccionHash, selectedProperty.value.price); // Actualizar la propiedad del propietario
+            await registerTransactions(selectedProperty.value._id, userData.value._id, selectedProperty.value.owner, transaccionHash, selectedProperty.value.price); // Registrar transacción
             await updatePropertyStatus(selectedProperty.value._id); // Actualizar el estado de la propiedad
 
         } catch (err) {
@@ -83,6 +82,7 @@ const acceptTermsAndBuy = async () => {
     showModal.value = false;
     window.location.reload();
 };
+
 
 const wallet = ref(null);
 const tezos = ref(null);
@@ -123,6 +123,7 @@ const sendTezos = async (amountInTezos, recipientWalletAddress) => {
         alert(`Transacción exitosa! Token de Contrato Inteligente: ${transaccionHash}`);
     } catch (err) {
         console.error('Error al enviar Tezos:', err);
+        throw new Error("Error al enviar Tezos"); // Lanza el error para que se detenga el flujo
     }
 };
 
