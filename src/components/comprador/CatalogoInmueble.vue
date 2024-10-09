@@ -31,7 +31,7 @@ const getCookie = (name) => {
 const filterPropertiesByOwner = () => {
     if (userData.value && userData.value._id) {
         filteredProperties.value = propertyData.value.filter(
-            (property) => property.isForSale === true
+            (property) => property.isForSale === true && property.isVerify === true
         );
     }
 };
@@ -259,6 +259,9 @@ const openBuyModal = (property) => {
                             Comprar
                         </button>
                     </div>
+                    <p class="card-text border p-2 border-info rounded" style="color: white; text-align: center;">
+                        <strong> {{ property.isVerify ? 'Verificado ⚕️' : 'Pendiente' }}</strong>
+                    </p>
                     <div class="card-footer text-muted">
                         Fecha de publicacion: {{ new Date(property.createdAt).toLocaleDateString() }}
                         <br>
@@ -312,7 +315,7 @@ const openBuyModal = (property) => {
 }
 
 .card {
-    --bg-card: #27272a;
+    --bg-card: #0E1420;
     --primary: #6d28d9;
     --primary-800: #4c1d95;
     --primary-shadow: #2e1065;
@@ -404,7 +407,6 @@ const openBuyModal = (property) => {
 .card-footer {
     font-size: 1rem;
     color: #ffffff;
-    /* Cambiamos el color a blanco */
 }
 
 /* Estilos para el modal */
@@ -429,7 +431,7 @@ const openBuyModal = (property) => {
 
 .Titulo {
     color: white;
-    background-color: #27272A;
+    background-color: #0E1420;
     text-align: center;
     /* Centra el texto */
     padding: 10px;

@@ -181,5 +181,76 @@ onMounted(async () => {
 }
 .container{
   color: white;
+}/* Estilo de la tarjeta */
+.card_box {
+  width: 100%;
+  height: 450px; /* Establece una altura fija para las tarjetas */
+  border-radius: 20px;
+  background: #111827;
+  position: relative;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
+
+.card_box:hover {
+  transform: scale(0.95);
+}
+
+.card_box img {
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-body {
+  padding: 10px;
+  overflow: hidden;
+  flex-grow: 1; /* Para que el cuerpo de la tarjeta ocupe el espacio disponible */
+}
+
+.card-title {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.card-text {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* No permitir múltiples líneas */
+}
+
+.card-footer {
+  padding: 10px;
+  text-align: center;
+  background-color: #1E293B;
+}
+
+/* Estilo para truncar la descripción si es muy larga */
+.card_box .card-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.Titulo {
+  color: white;
+  background-color: #111827;
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 40px;
+}
+
+.container {
+  color: white;
+}
+
 </style>

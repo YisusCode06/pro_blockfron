@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import Swal from 'sweetalert2'; // Importa SweetAlert2
 
 const userData = ref(null);
 const usersData = ref([]);
@@ -62,6 +63,16 @@ onMounted(async () => {
         userTransactions.value = transactionData.value.filter(
             (transaction) => transaction.status === 'pending'
         );
+
+        // Verificar si no hay documentos pendientes
+        if (userTransactions.value.length === 0) {
+            Swal.fire({
+                icon: 'info',
+                title: 'No hay documentos pendientes',
+                text: 'No tienes ninguna transacción pendiente en este momento.',
+                confirmButtonText: 'Aceptar'
+            });
+        }
     } catch (error) {
         console.error('Error al obtener los datos de las transacciones:', error);
     }
@@ -93,9 +104,25 @@ const updateTransactionStatus = async (transactionId, newStatus) => {
             userTransactions.value[transactionIndex].status = newStatus;
             userTransactions.value[transactionIndex].updatedAt = new Date();
         }
-        window.location.reload();
+
+        // Mostrar una alerta después de actualizar el estado
+        Swal.fire({
+            icon: 'success',
+            title: 'Estado actualizado',
+            text: `La transacción ha sido marcada como ${newStatus}.`,
+            confirmButtonText: 'Aceptar'
+        });
+
+        // Opcional: Recargar la página si es necesario
+        // window.location.reload();
     } catch (error) {
         console.error('Error al actualizar el estado de la transacción:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo actualizar el estado de la transacción.',
+            confirmButtonText: 'Aceptar'
+        });
     }
 };
 </script>
@@ -142,6 +169,5 @@ const updateTransactionStatus = async (transactionId, newStatus) => {
         </table>
     </div>
 </template>
-
 
 <style scoped></style>
