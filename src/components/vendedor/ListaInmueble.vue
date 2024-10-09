@@ -113,7 +113,7 @@ const uploadDocuments = async () => {
       formData.append('file', document.file);
 
       try {
-        const response = await axios.post('http://localhost:3000/api/v1/document', formData);
+        const response = await axios.post('https://csrtgjq0-3000.brs.devtunnels.ms/api/v1/document', formData);
         console.log('Documento subido:', response.data);
       } catch (error) {
         Swal.fire({
@@ -206,7 +206,7 @@ onMounted(async () => {
 });
 
 const getFullUrl = (fileUrl) => {
-  const baseUrl = 'http://localhost:3000'; // Cambia esto si tienes una URL diferente en producción
+  const baseUrl = 'https://csrtgjq0-3000.brs.devtunnels.ms'; // Cambia esto si tienes una URL diferente en producción
   return baseUrl + fileUrl;
 };
 
