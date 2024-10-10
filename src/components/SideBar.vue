@@ -92,7 +92,7 @@ onMounted(() => {
             inmuebles</a>
         </li>
         <li v-if="userData && userData.role === 'buyer'">
-          <a href="#" @click.prevent="selectOption('historial-compras')"><span class="bx bxs-group"></span>Historial de
+          <a href="#" @click.prevent="selectOption('historial-compras')"><span class="bx bx-list-ul"></span>Historial de
             compra</a>
         </li>
         <h4 v-if="userData && userData.role === 'admin'">
@@ -101,15 +101,15 @@ onMounted(() => {
         </h4>
         <li v-if="userData && userData.role === 'admin'">
           <a href="#" @click.prevent="selectOption('documentos-pendientes')"><span
-              class="bx bx-folder"></span>Documentos Pendientes</a>
+              class="bx bx-grid-vertical"></span>Documentos Pendientes</a>
         </li>
         <li v-if="userData && userData.role === 'admin'">
-          <a href="#" @click.prevent="selectOption('historial-documentos')"><span class="bx bx-folder"></span>Historial
+          <a href="#" @click.prevent="selectOption('historial-documentos')"><span class="bx bx-package"></span>Historial
             de documentos</a>
         </li>
         <li v-if="userData && userData.role === 'admin'">
           <a href="#" @click.prevent="selectOption('verificaciones-pendientes')"><span
-              class="bx bx-folder"></span>Verificaciones Pendientes</a>
+              class="bx bx-list-check"></span>Verificaciones Pendientes</a>
         </li>
         <h4>
           <span>Mi Cuenta</span>
