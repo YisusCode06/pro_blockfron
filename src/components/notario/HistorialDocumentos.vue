@@ -137,62 +137,102 @@ const generateTransactionPDF = (transaction) => {
 <template>
     <div class="container">
         <h2>Historial de Documentos</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Propiedad</th>
-                    <th scope="col">Vendedor</th>
-                    <th scope="col">Comprador</th>
-                    <th scope="col">Monto (Tezos)</th>
-                    <th scope="col">Estado</th>
-                    <th scope="col">Token de Contrato</th>
-                    <th scope="col">Fecha de Creación</th>
-                    <th scope="col">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(transaction, index) in userTransactions" :key="transaction._id">
-                    <th scope="row">{{ index + 1 }}</th>
-                    <td>{{ getPropertyTitle(transaction.property) }}</td>
-                    <td>{{ getSellerUsername(transaction.seller) }}</td>
-                    <td>{{ getSellerUsername(transaction.buyer) }}</td>
-                    <td>{{ transaction.amount }}</td>
-                    <td>{{ transaction.status }}</td>
-                    <td>{{ transaction.transactionHash }}</td>
-                    <td>{{ new Date(transaction.createdAt).toLocaleString() }}</td>
-                    <!-- Botón para generar el PDF del contrato individual -->
-                    <td>
-                        <button @click="generateTransactionPDF(transaction)" class="download-button">
-                            <div class="docs">
-                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                                    <polyline points="10 9 9 9 8 9"></polyline>
-                                </svg>
-                                Docs
-                            </div>
-                            <div class="download">
-                                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2"
-                                    fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="7 10 12 15 17 10"></polyline>
-                                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                                </svg>
-                            </div>
-                        </button>
-
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <!-- Nuevo div para aplicar el overflow-x en la tabla -->
+        <div class="table-wrapper">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Propiedad</th>
+                        <th scope="col">Vendedor</th>
+                        <th scope="col">Comprador</th>
+                        <th scope="col">Monto (Tezos)</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Token de Contrato</th>
+                        <th scope="col">Fecha de Creación</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(transaction, index) in userTransactions" :key="transaction._id">
+                        <th scope="row">{{ index + 1 }}</th>
+                        <td>{{ getPropertyTitle(transaction.property) }}</td>
+                        <td>{{ getSellerUsername(transaction.seller) }}</td>
+                        <td>{{ getSellerUsername(transaction.buyer) }}</td>
+                        <td>{{ transaction.amount }}</td>
+                        <td>{{ transaction.status }}</td>
+                        <td>{{ transaction.transactionHash }}</td>
+                        <td>{{ new Date(transaction.createdAt).toLocaleString() }}</td>
+                        <!-- Botón para generar el PDF del contrato individual -->
+                        <td>
+                            <button @click="generateTransactionPDF(transaction)" class="download-button">
+                                <div class="docs">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                        <polyline points="10 9 9 9 8 9"></polyline>
+                                    </svg>
+                                    Docs
+                                </div>
+                                <div class="download">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="7 10 12 15 17 10"></polyline>
+                                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                                    </svg>
+                                </div>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </template>
 
+
 <style scoped>
+.container {
+    margin: 0;
+    padding: 1rem;
+    max-width: 100%; /* Asegura que el contenedor ocupe todo el ancho */
+}
+
+.table-wrapper {
+    overflow-x: auto; /* Habilita el desplazamiento horizontal en la tabla */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto; /* Mantiene las columnas adaptables al contenido */
+    overflow-x: auto; /* Aplica el desbordamiento dentro de la tabla */
+}
+
+th, td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+thead {
+    background-color: #111827;
+    color: white;
+}
+
+tbody tr:hover {
+    background-color: rgba(17, 24, 39, 0.1);
+}
+
+th, td {
+    word-wrap: break-word; /* Evita que el contenido se desborde de las celdas */
+    white-space: nowrap; /* Evita que las celdas crezcan desmesuradamente */
+}
+
 .download-button {
   position: relative;
   border-width: 0;
@@ -213,7 +253,7 @@ const generateTransactionPDF = (transaction) => {
   padding: 0 10px;
   border-radius: 4px;
   z-index: 1;
-  background-color: #242a35; /* Cambia esto a #111827 si lo deseas */
+  background-color: #242a35;
   border: solid 1px #e8e8e82d;
   transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
 }
@@ -238,7 +278,7 @@ const generateTransactionPDF = (transaction) => {
   z-index: -1;
   border-radius: 4px;
   transform: translateY(0%);
-  background-color: #01e056; /* Cambia esto a otro color si lo deseas */
+  background-color: #01e056;
   border: solid 1px #01e0572d;
   transition: all 0.5s cubic-bezier(0.77, 0, 0.175, 1);
 }
