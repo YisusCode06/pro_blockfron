@@ -1,0 +1,132 @@
+.form-container {
+    width: 100%;
+    max-width: 800px;
+    margin: auto;
+    border-radius: 0.75rem;
+    background-color: rgba(17, 24, 39, 1);
+    padding: 2rem;
+    color: rgba(243, 244, 246, 1);
+}
+
+.title {
+    text-align: center;
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+}
+
+.form {
+    margin-top: 1.5rem;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+    justify-content: space-between;
+    gap: 1rem; /* Espacio entre subformularios */
+}
+
+.sub-form {
+    flex: 1 1 100%; /* Apilar en pantallas pequeñas, pero mantener flexibilidad */
+    padding: 1rem;
+    border: 1px solid rgba(55, 65, 81, 1);
+    border-radius: 0.375rem;
+    background-color: rgba(30, 41, 59, 1);
+    margin: 0.5rem 0;
+}
+
+@media (min-width: 768px) {
+    .sub-form {
+        flex: 1 1 calc(50% - 2rem); /* Ocupa la mitad del ancho en pantallas medianas y grandes */
+        margin: 0;
+    }
+}
+
+.input-group {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.input-group label {
+    display: block;
+    color: rgba(156, 163, 175, 1);
+    margin-bottom: 4px;
+}
+
+.input-group input,
+.input-group textarea,
+.input-group select {
+    width: 100%;
+    border-radius: 0.375rem;
+    border: 1px solid rgba(55, 65, 81, 1);
+    outline: 0;
+    background-color: rgba(17, 24, 39, 1);
+    padding: 0.75rem 1rem;
+    color: rgba(243, 244, 246, 1);
+}
+
+.input-group input:focus,
+.input-group textarea:focus,
+.input-group select:focus {
+    border-color: rgba(167, 139, 250);
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+button {
+   display: inline-block;
+   width: 100%; /* Botón ocupa todo el ancho del contenedor */
+   max-width: 400px; /* Máximo ancho del botón */
+   height: 50px;
+   border-radius: 10px;
+   border: 1px solid #03045e;
+   position: relative;
+   overflow: hidden;
+   transition: all 0.5s ease-in;
+   z-index: 1;
+}
+
+button::before,
+button::after {
+   content: '';
+   position: absolute;
+   top: 0;
+   width: 0;
+   height: 100%;
+   transform: skew(15deg);
+   transition: all 0.5s;
+   overflow: hidden;
+   z-index: -1;
+}
+
+button::before {
+   left: -40px;
+   background: #111827;
+}
+
+button::after {
+   right: -10px;
+   background: #1E293B;
+}
+
+button:hover::before,
+button:hover::after {
+   width: 58%;
+}
+
+button:hover span {
+   color: #e0aaff;
+   transition: 0.3s;
+}
+
+button span {
+   color: #03045e;
+   font-size: 18px;
+   transition: all 0.3s ease-in;
+}

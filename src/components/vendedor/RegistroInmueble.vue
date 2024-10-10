@@ -80,6 +80,7 @@ const registerProperty = async () => {
   }
 };
 </script>
+
 <template>
   <div class="form-container">
     <p class="title">Registro de Inmuebles</p>
@@ -151,169 +152,16 @@ const registerProperty = async () => {
       </div>
       <div class="button-container">
 
-      <button type="submit">
-        <span> Registrar Inmueble
-        </span>
-      </button>
-    </div>
+        <button type="submit">
+          <span> Registrar Inmueble
+          </span>
+        </button>
+      </div>
 
     </form>
   </div>
 </template>
 
 <style scoped>
-.form-container {
-  width: 100%;
-  /* Cambiar a 100% para que ocupe todo el ancho */
-  max-width: 800px;
-  /* Puedes ajustar este valor según tus necesidades */
-  margin: 0 auto;
-  /* Centrar horizontalmente */
-  border-radius: 0.75rem;
-  background-color: rgba(17, 24, 39, 1);
-  padding: 2rem;
-  color: rgba(243, 244, 246, 1);
-}
-
-.title {
-  text-align: center;
-  font-size: 1.5rem;
-  line-height: 2rem;
-  font-weight: 700;
-}
-
-.form {
-  margin-top: 1.5rem;
-}
-
-.form-row {
-  display: flex;
-  /* Usar flexbox para alinear los subformularios horizontalmente */
-  justify-content: space-between;
-  /* Espacio entre los subformularios */
-}
-
-.sub-form {
-  flex: 1;
-  /* Cada subformulario ocupa el mismo ancho */
-  padding: 1rem;
-  border: 1px solid rgba(55, 65, 81, 1);
-  border-radius: 0.375rem;
-  background-color: rgba(30, 41, 59, 1);
-  margin: 0 1rem;
-  /* Espacio lateral entre subformularios */
-}
-
-.sub-form:first-of-type {
-  margin-left: 0;
-  /* Eliminar margen izquierdo del primer subformulario */
-}
-
-.sub-form:last-of-type {
-  margin-right: 0;
-  /* Eliminar margen derecho del último subformulario */
-}
-
-.input-group {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-}
-
-.input-group label {
-  display: block;
-  color: rgba(156, 163, 175, 1);
-  margin-bottom: 4px;
-}
-
-.input-group input,
-.input-group textarea,
-.input-group select {
-  width: 100%;
-  /* Asegura que los campos de entrada ocupen todo el ancho */
-  border-radius: 0.375rem;
-  border: 1px solid rgba(55, 65, 81, 1);
-  outline: 0;
-  background-color: rgba(17, 24, 39, 1);
-  padding: 0.75rem 1rem;
-  color: rgba(243, 244, 246, 1);
-}
-
-.input-group input:focus,
-.input-group textarea:focus,
-.input-group select:focus {
-  border-color: rgba(167, 139, 250);
-}
-
-.btn-primary {
-  display: block;
-  width: 100%;
-  background-color: rgba(167, 139, 250, 1);
-  padding: 0.75rem;
-  text-align: center;
-  color: rgba(17, 24, 39, 1);
-  border: none;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  margin-top: 1rem;
-  /* Espacio superior para el botón */
-}
-.button-container {
-  display: flex;               /* Usar flexbox para centrar el contenido */
-  justify-content: center;     /* Centra horizontalmente */
-  align-items: center;         /* Centra verticalmente (opcional) */
-  height: 5vh;               /* Asegúrate de que el contenedor ocupe toda la altura de la ventana */
-  margin-top: 20px;           /* Espacio adicional hacia abajo */
-}
-button {
- display: inline-block;
- width: 750px;
- height: 50px;
- border-radius: 10px;
- border: 1px solid #03045e;
- position: relative;
- overflow: hidden;
- transition: all 0.5s ease-in;
- z-index: 1;
-}
-
-button::before,
-button::after {
- content: '';
- position: absolute;
- top: 0;
- width: 0;
- height: 100%;
- transform: skew(15deg);
- transition: all 0.5s;
- overflow: hidden;
- z-index: -1;
-}
-
-button::before {
- left: -40px;
- background: #111827;
-}
-
-button::after {
- right: -10px;
- background: #1E293B;
-}
-
-button:hover::before,
-button:hover::after {
- width: 58%;
-}
-
-button:hover span {
- color: #e0aaff;
- transition: 0.3s;
-}
-
-button span {
- color: #03045e;
- font-size: 18px;
- transition: all 0.3s ease-in;
-}
-
+@import url(./RegistroInmueble.css);
 </style>
