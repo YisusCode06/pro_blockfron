@@ -135,50 +135,156 @@ const hasPropertiesToVerify = computed(() => filteredProperties.value.length > 0
 </script>
 
 <template>
-    <h1>Aprobar Documentos</h1>
+    <div class="container">
+        <h1 class="my-4 text-center">Aprobar Documentos</h1>
 
-    <!-- Mensaje si no hay propiedades que verificar -->
-    <div v-if="!hasPropertiesToVerify" class="alert alert-info">
-        No hay propiedades pendientes de verificación.
-    </div>
+        <!-- Mensaje si no hay propiedades que verificar -->
+        <div v-if="!hasPropertiesToVerify" class="alert alert-info text-center">
+            No hay propiedades pendientes de verificación.
+        </div>
 
-    <div v-for="property in filteredProperties" :key="property._id" class="border p-2 rounded border-primary">
-        <h3>{{ getPropertyTitle(property._id) }}</h3>
-        <p><strong>Vendedor:</strong> {{ getUserName(property.owner) }}</p>
-        <!-- <p><strong>Comprador:</strong> {{ getUserName(getBuyerFromTransaction(property._id)) }}</p> -->
+        <!-- Lista de propiedades a verificar -->
+        <div 
+            v-for="property in filteredProperties" 
+            :key="property._id" 
+            class="card mb-4 shadow-sm"
+        >
+            <div class="card-body">
+                <h3 class="card-title">{{ getPropertyTitle(property._id) }}</h3>
+                <p><strong>Vendedor:</strong> {{ getUserName(property.owner) }}</p>
 
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Documento</th>
-                    <th>Visualizar</th>
-                    <th>Seleccionar</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="doc in documentData.filter(d => d.idproperty === property._id)" :key="doc._id">
-                    <td>{{ doc.fileUrl }}</td>
-                    <td>
-                        <a :href="'http://localhost:3000' + doc.fileUrl" target="_blank" class="btn btn-primary">Ver Documento</a>
-                    </td>
-                    <td>
-                        <input type="checkbox" :value="doc._id" @change="handleCheckboxChange(doc._id)">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Documento</th>
+                                <th>Visualizar</th>
+                                <th>Seleccionar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="doc in documentData.filter(d => d.idproperty === property._id)" :key="doc._id">
+                                <td>{{ doc.fileUrl.split('/').pop() }}</td>
+                                <td>
+                                    <a 
+                                        :href="'http://localhost:3000' + doc.fileUrl" 
+                                        target="_blank" 
+                                        class="btn btn-sm btn-outline-primary">
+                                        Ver Documento
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <input 
+                                        type="checkbox" 
+                                        :value="doc._id" 
+                                        @change="handleCheckboxChange(doc._id)">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-        <button 
-            class="btn btn-success" 
-            :disabled="!isAllDocumentsSelected(property._id)" 
-            @click="approveVerification(property._id)">
-            Aprobar Verificación
-        </button>
+                <div class="text-center mt-3">
+                    <button 
+                        class="btn btn-success" 
+                        :disabled="!isAllDocumentsSelected(property._id)" 
+                        @click="approveVerification(property._id)">
+                        Aprobar Verificación
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
+
 <style scoped>
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #343a40;
+    font-weight: bold;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: box-shadow 0.3s ease;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.table-responsive {
+    margin-top: 15px;
+}
+
 .table {
+    margin-bottom: 0;
+}
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.thead-dark {
+    background-color: #343a40;
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+.btn {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-success:disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+    cursor: not-allowed;
+}
+
+.alert {
+    font-size: 1.2rem;
+    padding: 20px;
     margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+    }
 }
 </style>
