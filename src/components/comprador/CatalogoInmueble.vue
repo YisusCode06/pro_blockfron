@@ -11,6 +11,9 @@ const usersData = ref([]); // Cambiar a un array porque contiene una lista de us
 const selectedProperty = ref(null); // Propiedad seleccionada al hacer clic en "Comprar"
 const showModal = ref(false); // Estado para mostrar/ocultar el modal
 const transaccionHash = ref(null); //
+// Nuevas variables para los filtros
+const selectedFilter = ref(''); // Almacena el filtro seleccionado
+const filterValue = ref(''); // Almacena el valor del filtro
 
 // Términos y condiciones
 const termsConditions = ref([
@@ -18,6 +21,30 @@ const termsConditions = ref([
     { text: 'El vendedor se compromete a mantener la seguridad y confidencialidad de la información del comprador.', accepted: false },
     { text: 'El comprador debera abonar un porcentaje al notario para la aprobacion de su transaccion', accepted: false }
 ]);
+// Nueva función para filtrar propiedades
+const filterProperties = () => {
+    // Filtrar propiedades que están a la venta y verificadas
+    let properties = propertyData.value.filter(property => property.isForSale === true && property.isVerify === true);
+
+    // Filtrar y ordenar propiedades por precio de menor a mayor
+    if (selectedFilter.value === 'precio') {
+        // Ordenar las propiedades de menor a mayor precio
+        properties = properties.sort((a, b) => a.price - b.price);
+    }
+    // Filtrar por fecha de publicación
+    if (selectedFilter.value === 'fechaPublicacion') {
+        properties = properties.sort((a, b) => new Date(b.publicationDate) - new Date(a.publicationDate));
+    }
+
+    // Filtrar por orden alfabético
+    if (selectedFilter.value === 'alfabetico') {
+        properties = properties.sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    // Asignar propiedades filtradas
+    filteredProperties.value = properties;
+};
+
 
 // Función para obtener cookies
 const getCookie = (name) => {
@@ -231,6 +258,19 @@ const openBuyModal = (property) => {
     <div class="container">
         <h1 class="Titulo">Catálogo de Inmuebles</h1>
         <br>
+
+        <div class="filter-options">
+            <select v-model="selectedFilter" @change="filterProperties" class="custom-select">
+                <option value="" disabled selected>Seleccionar filtro</option>
+                <option value="precio">Precio</option>
+                <option value="fechaPublicacion">Fecha de publicación</option>
+                <option value="alfabetico">Orden alfabético</option>
+            </select>
+        </div>
+
+
+        <br>
+
         <div class="row">
 
             <!-- Iteramos sobre los inmuebles filtrados para mostrarlos en tarjetas -->
@@ -365,7 +405,13 @@ const openBuyModal = (property) => {
     font-weight: 600;
     color: var(--light);
     text-transform: capitalize;
+    
+    /* Nuevas propiedades para limitar a una línea */
+    overflow: hidden;         /* Oculta el desbordamiento */
+    white-space: nowrap;     /* Evita que el texto se divida en varias líneas */
+    text-overflow: ellipsis; /* Muestra "..." si el texto se corta */
 }
+
 
 .size {
     font-size: 1rem;
@@ -375,7 +421,22 @@ const openBuyModal = (property) => {
 .des {
     font-size: 1rem;
     color: var(--light);
+    display: -webkit-box;
+    /* Usado para el truncado */
+    display: box;
+    /* Para navegadores que soportan la especificación */
+    -webkit-box-orient: vertical;
+    /* Orientación vertical */
+    overflow: hidden;
+    /* Oculta el texto que sobresale */
+    -webkit-line-clamp: 1;
+    /* Número máximo de líneas a mostrar (webkit) */
+    line-clamp: 1;
+    /* Número máximo de líneas a mostrar (estándar) */
+    text-overflow: ellipsis;
+    /* Agrega "..." si el texto es demasiado largo */
 }
+
 
 
 .action {
@@ -535,4 +596,56 @@ const openBuyModal = (property) => {
 .btn:where(:hover, :focus) {
     color: #fff;
 }
+
+.filter-options {
+    margin: 20px; /* Margen para separar del resto de los elementos */
+    display: flex;
+    justify-content:flex-start; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+}
+
+.custom-select {
+    display: inline-block;
+
+    width: 100%; /* Ancho completo en dispositivos pequeños */
+    max-width: 300px; /* Ancho máximo para pantallas grandes */
+    padding: 10px 15px; /* Espaciado interno */
+    border: 1px solid #727272; /* Borde del select */
+    border-radius: 5px; /* Bordes redondeados */
+    background-color: #0E1420; /* Color de fondo */
+    color: #e9e1e1; /* Color del texto */
+    font-size: 24px; /* Tamaño de la fuente */
+    appearance: none; /* Elimina el estilo por defecto */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="%23007BFF" stroke-width="2"><path d="M5 8l5 5 5-5H5z"/></svg>'); /* Ícono de flecha */
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* Posición del ícono */
+    background-size: 12px; /* Tamaño del ícono */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el select */
+    transition: border-color 0.3s ease, background-color 0.3s ease; /* Transición suave para el borde y fondo */
+}
+
+.custom-select:hover {
+    border-color: #000000; /* Cambia el color del borde al pasar el mouse */
+    background-color: #23325241; /* Cambia el color de fondo al pasar el mouse */
+}
+
+.custom-select:focus {
+    border-color: #000000; /* Cambia el color del borde al enfocarlo */
+    outline: none; /* Elimina el contorno por defecto */
+}
+
+.custom-select option {
+    padding: 10px; /* Espaciado interno para opciones */
+    background-color: #0E1420; /* Color de fondo de las opciones */
+    color: #ffffff; /* Color del texto de las opciones */
+}
+
+/* Estilo responsivo */
+@media (max-width: 600px) {
+    .custom-select {
+        font-size: 14px; /* Tamaño de fuente más pequeño en pantallas pequeñas */
+        padding: 8px 12px; /* Espaciado interno reducido en pantallas pequeñas */
+    }
+}
+
 </style>

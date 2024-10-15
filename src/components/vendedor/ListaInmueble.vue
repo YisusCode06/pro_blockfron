@@ -113,7 +113,7 @@ const uploadDocuments = async () => {
       formData.append('file', document.file);
 
       try {
-        const response = await axios.post('http://localhost:3000/api/v1/document', formData);
+        const response = await axios.post('https://pro-block.vercel.app/api/v1/document', formData);
         console.log('Documento subido:', response.data);
       } catch (error) {
         Swal.fire({
@@ -206,7 +206,7 @@ onMounted(async () => {
 });
 
 const getFullUrl = (fileUrl) => {
-  const baseUrl = 'http://localhost:3000'; // Cambia esto si tienes una URL diferente en producción
+  const baseUrl = ''; // Cambia esto si tienes una URL diferente en producción
   return baseUrl + fileUrl;
 };
 
