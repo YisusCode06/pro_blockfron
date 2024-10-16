@@ -1,0 +1,318 @@
+.card-img-top {
+    object-fit: cover;
+    height: 200px;
+}
+
+/* Estilos para el modal */
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+}
+
+.card {
+    --bg-card: #0E1420;
+    --primary: #6d28d9;
+    --primary-800: #4c1d95;
+    --primary-shadow: #2e1065;
+    --light: #d9d9d9;
+    --zinc-800: #18181b;
+    --bg-linear: linear-gradient(0deg, var(--primary) 50%, var(--light) 125%);
+
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    /* Aumentamos el espacio entre los elementos */
+
+    padding: 2rem;
+    /* Aumentamos el padding */
+    width: 22rem;
+    /* Aumentamos el ancho de la tarjeta */
+    background-color: var(--bg-card);
+
+    border-radius: 1rem;
+}
+
+.image_container {
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    height: 12rem;
+    background-color: var(--primary-800);
+    border-radius: 0.5rem;
+}
+
+.image_container .image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--light);
+    text-transform: capitalize;
+    
+    /* Nuevas propiedades para limitar a una línea */
+    overflow: hidden;         /* Oculta el desbordamiento */
+    white-space: nowrap;     /* Evita que el texto se divida en varias líneas */
+    text-overflow: ellipsis; /* Muestra "..." si el texto se corta */
+}
+
+
+.size {
+    font-size: 1rem;
+    color: var(--light);
+}
+
+.des {
+    font-size: 1rem;
+    color: var(--light);
+    display: -webkit-box;
+    /* Usado para el truncado */
+    display: box;
+    /* Para navegadores que soportan la especificación */
+    -webkit-box-orient: vertical;
+    /* Orientación vertical */
+    overflow: hidden;
+    /* Oculta el texto que sobresale */
+    -webkit-line-clamp: 1;
+    /* Número máximo de líneas a mostrar (webkit) */
+    line-clamp: 1;
+    /* Número máximo de líneas a mostrar (estándar) */
+    text-overflow: ellipsis;
+    /* Agrega "..." si el texto es demasiado largo */
+}
+
+
+
+.action {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--light);
+}
+
+.cart-button {
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    background-color: var(--primary);
+    color: var(--light);
+    border: none;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.cart-button:hover {
+    background-color: var(--primary-800);
+}
+
+.card-footer {
+    font-size: 1rem;
+    color: #ffffff;
+}
+
+/* Estilos para el modal */
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+}
+
+.Titulo {
+    color: white;
+    background-color: #0E1420;
+    text-align: center;
+    /* Centra el texto */
+    padding: 10px;
+    /* Opcional: Espaciado interno para mejorar el aspecto */
+}
+
+/* From Uiverse.io by kleenpulse */
+.btn {
+    --border-color: linear-gradient(-45deg, #ffae00, #7e03aa, #00fffb);
+    --border-width: 0.125em;
+    --curve-size: 0.5em;
+    --blur: 30px;
+    --bg: #080312;
+    --color: #afffff;
+    color: var(--color);
+    cursor: pointer;
+    /* use position: relative; so that BG is only for .btn */
+    position: relative;
+    isolation: isolate;
+    display: inline-grid;
+    place-content: center;
+    padding: 0.5em 1.5em;
+    font-size: 17px;
+    border: 0;
+    text-transform: uppercase;
+    box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.6);
+    clip-path: polygon(
+            /* Top-left */
+            0% var(--curve-size),
+            var(--curve-size) 0,
+            /* top-right */
+            100% 0,
+            100% calc(100% - var(--curve-size)),
+            /* bottom-right 1 */
+            calc(100% - var(--curve-size)) 100%,
+            /* bottom-right 2 */
+            0 100%);
+    transition: color 250ms;
+}
+
+.btn::after,
+.btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.btn::before {
+    background: var(--border-color);
+    background-size: 300% 300%;
+    animation: move-bg7234 5s ease infinite;
+    z-index: -2;
+}
+
+@keyframes move-bg7234 {
+    0% {
+        background-position: 31% 0%;
+    }
+
+    50% {
+        background-position: 70% 100%;
+    }
+
+    100% {
+        background-position: 31% 0%;
+    }
+}
+
+.btn::after {
+    background: var(--bg);
+    z-index: -1;
+    clip-path: polygon(
+            /* Top-left */
+            var(--border-width) calc(var(--curve-size) + var(--border-width) * 0.5),
+            calc(var(--curve-size) + var(--border-width) * 0.5) var(--border-width),
+            /* top-right */
+            calc(100% - var(--border-width)) var(--border-width),
+            calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)),
+            /* bottom-right 1 */
+            calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)),
+            /* bottom-right 2 */
+            var(--border-width) calc(100% - var(--border-width)));
+    transition: clip-path 500ms;
+}
+
+.btn:where(:hover, :focus)::after {
+    clip-path: polygon(
+            /* Top-left */
+            calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)),
+            calc(100% - var(--border-width)) var(--border-width),
+            /* top-right */
+            calc(100% - var(--border-width)) var(--border-width),
+            calc(100% - var(--border-width)) calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)),
+            /* bottom-right 1 */
+            calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)),
+            /* bottom-right 2 */
+            calc(100% - calc(var(--curve-size) + var(--border-width) * 0.5)) calc(100% - var(--border-width)));
+    transition: 200ms;
+}
+
+.btn:where(:hover, :focus) {
+    color: #fff;
+}
+
+.filter-options {
+    margin: 20px; /* Margen para separar del resto de los elementos */
+    display: flex;
+    justify-content:space-between; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+}
+
+.custom-select {
+    display: inline-block;
+
+    width: 100%; /* Ancho completo en dispositivos pequeños */
+    max-width: 300px; /* Ancho máximo para pantallas grandes */
+    padding: 10px 15px; /* Espaciado interno */
+    border: 1px solid #727272; /* Borde del select */
+    border-radius: 5px; /* Bordes redondeados */
+    background-color: #0E1420; /* Color de fondo */
+    color: #e9e1e1; /* Color del texto */
+    font-size: 24px; /* Tamaño de la fuente */
+    appearance: none; /* Elimina el estilo por defecto */
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="%23007BFF" stroke-width="2"><path d="M5 8l5 5 5-5H5z"/></svg>'); /* Ícono de flecha */
+    background-repeat: no-repeat;
+    background-position: right 10px center; /* Posición del ícono */
+    background-size: 12px; /* Tamaño del ícono */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el select */
+    transition: border-color 0.3s ease, background-color 0.3s ease; /* Transición suave para el borde y fondo */
+}
+
+.custom-select:hover {
+    border-color: #000000; /* Cambia el color del borde al pasar el mouse */
+    background-color: #23325241; /* Cambia el color de fondo al pasar el mouse */
+}
+
+.custom-select:focus {
+    border-color: #000000; /* Cambia el color del borde al enfocarlo */
+    outline: none; /* Elimina el contorno por defecto */
+}
+
+.custom-select option {
+    padding: 10px; /* Espaciado interno para opciones */
+    background-color: #0E1420; /* Color de fondo de las opciones */
+    color: #ffffff; /* Color del texto de las opciones */
+}
+
+/* Estilo responsivo */
+@media (max-width: 600px) {
+    .custom-select {
+        font-size: 14px; /* Tamaño de fuente más pequeño en pantallas pequeñas */
+        padding: 8px 12px; /* Espaciado interno reducido en pantallas pequeñas */
+    }
+}

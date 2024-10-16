@@ -2,12 +2,15 @@
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2'; // Importar SweetAlert2
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import * as pdfjsLib from 'pdfjs-dist/webpack'; // Importar PDF.js para leer el PDF
 
 const documentData = ref([]);
 const propertyData = ref([]);
 const usersData = ref([]);
 const transactionData = ref([]); // Aquí almacenaremos las transacciones
 const selectedDocuments = ref([]); // Aquí almacenaremos los documentos seleccionados para verificación
+const loading = ref(false); // Añadir estado de carga para el análisis de PDF
 
 // Función para obtener cookies
 const getCookie = (name) => {
@@ -15,6 +18,119 @@ const getCookie = (name) => {
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
+};
+
+// Configuración de Gemini API
+const genAI = new GoogleGenerativeAI('AIzaSyBsC1yPjylK9zFCUNHfTr_U9rF4ezGqPLA');
+const generationConfig = {
+    temperature: 0,
+    topP: 0.95,
+    topK: 64,
+    maxOutputTokens: 8192,
+    responseMimeType: 'text/plain',
+};
+
+// Función para extraer texto del PDF usando PDF.js
+const extractTextFromPDF = async (pdfUrl) => {
+    try {
+        // Descargar el archivo PDF
+        const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+
+        let extractedText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const textContent = await page.getTextContent();
+            const pageText = textContent.items.map(item => item.str).join(' ');
+            extractedText += pageText + ' ';
+        }
+
+        return extractedText.trim(); // Devolver el texto extraído
+    } catch (error) {
+        console.error('Error al extraer el texto del PDF:', error);
+        return null;
+    }
+};
+
+// Función para analizar el texto extraído del PDF con la API de Gemini
+// Función para analizar el texto extraído del PDF con la API de Gemini
+const analyzePDF = async (pdfUrl) => {
+    try {
+        loading.value = true;  // Activar el estado de carga
+        console.log("Iniciando extracción de texto del PDF...");
+
+        // Mostrar barra de carga en SweetAlert
+        Swal.fire({
+            title: 'Analizando documento...',
+            html: 'Por favor espera mientras procesamos el archivo.',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
+        // Extraer el texto del PDF usando PDF.js
+        const extractedText = await extractTextFromPDF(pdfUrl);
+        console.log("Texto extraído con éxito.");
+
+        if (!extractedText) {
+            throw new Error('No se pudo extraer texto del PDF.');
+        }
+
+        // Enviar el texto extraído a la API de Google Gemini para su análisis
+        console.log("Enviando el texto a la API de Gemini...");
+        const model = genAI.getGenerativeModel({
+            model: 'gemini-1.5-flash',
+            systemInstruction: `
+        Actúa como un notario profesional y analiza el siguiente documento. 
+        Identifica si es un documento válido de las siguientes categorías: 
+        1. Título de propiedad 
+        2. Recibo de agua 
+        3. Recibo de luz 
+        4. Copia de DNI 
+        5. Copia de partida registral 
+        6. Boleta de pago de arbitrios
+        
+        Proporciona una evaluación clara sobre la validez del documento. 
+        Si es válido, ofrece un resumen muy corto que incluya los puntos clave y la información más relevante. 
+        Si no es válido, solo indica que no es valido, que tipo de documento es y menciona los documentos validos, no des sugerencias.
+    `,
+            generationConfig,
+        });
+
+
+        const result = await model.generateContent(extractedText); // Enviar texto a la API
+        const apiResponse = await result.response;
+        const analysisResult = await apiResponse.text();
+
+        console.log("Análisis completado con éxito.");
+        return analysisResult; // Devolver el resultado del análisis
+    } catch (error) {
+        console.error('Error al analizar el documento:', error);
+        return null;
+    } finally {
+        loading.value = false; // Desactivar el estado de carga al terminar
+        Swal.close(); // Cerrar la barra de carga cuando termine
+        console.log("Proceso finalizado.");
+    }
+};
+
+
+// Función para manejar el archivo seleccionado a través de la URL
+const handleFileChange = async (pdfUrl, docId) => {
+    if (pdfUrl && pdfUrl.endsWith('.pdf')) {
+        // Analizar el PDF usando la función analyzePDF
+        const analysis = await analyzePDF(pdfUrl);
+
+        if (analysis && analysis.includes('document')) {
+            Swal.fire('Resumen del documento', analysis, 'success');
+        } else {
+            Swal.fire('Error', 'El archivo no es un documento válido. Por favor, sube otro archivo.', 'error');
+        }
+    } else {
+        Swal.fire('Error', 'Solo se permiten archivos PDF.', 'error');
+        // Desactivar el checkbox si no es un archivo PDF
+        selectedDocuments.value = selectedDocuments.value.filter(id => id !== docId);
+    }
 };
 
 // Obtener datos del API
@@ -41,17 +157,9 @@ const getPropertyTitle = (propertyId) => {
     return property ? property.title : 'Propiedad desconocida';
 };
 
-
-
 const downloadFile = (url, filename) => {
-    // const link = document.createElement('a');
-    // link.href = url;
-    // link.download = filename; // Asigna el nombre de archivo
-    // document.body.appendChild(link);
-    // link.click(); // Simula un clic en el enlace
-    // document.body.removeChild(link); // Elimina el enlace del DOM
-    window.open(url, '_blank'); // Abre el URL en una nueva pestaña
-}
+    window.open(url, '_blank'); // Abrir el URL en una nueva pestaña
+};
 
 // Función para obtener el nombre de usuario (vendedor o comprador) por ID
 const getUserName = (userId) => {
@@ -106,9 +214,9 @@ const approveVerification = async (propertyId) => {
             const response = await fetch(`https://pro-block.vercel.app/api/v1/property/${propertyId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ isVerify: true })
+                body: JSON.stringify({ isVerify: true }),
             });
 
             if (!response.ok) {
@@ -144,7 +252,36 @@ const filteredProperties = computed(() => {
 
 // Computed para verificar si no hay propiedades para verificar
 const hasPropertiesToVerify = computed(() => filteredProperties.value.length > 0);
+
+// Función para eliminar documentos con confirmación
+const deleteDocument = async (docId) => {
+    console.log('Eliminando documento con ID:', docId);  // Asegúrate de que el ID se imprime correctamente
+
+    const confirmResult = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esto eliminará el documento permanentemente.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, eliminarlo',
+    });
+
+    if (confirmResult.isConfirmed) {
+        try {
+            await axios.delete(`https://pro-block.vercel.app/api/v1/document/${docId}`);
+            Swal.fire('Eliminado', 'El documento ha sido eliminado con éxito.', 'success');
+            window.location.reload(); // Recargar la página para actualizar la lista de propiedades
+        } catch (error) {
+            Swal.fire('Error', 'Hubo un problema al eliminar el documento.', 'error');
+            console.error('Error al eliminar el documento:', error);
+        }
+    }
+};
+
 </script>
+
+
 
 <template>
     <div class="container">
@@ -166,18 +303,25 @@ const hasPropertiesToVerify = computed(() => filteredProperties.value.length > 0
                         <thead class="thead-dark">
                             <tr>
                                 <th>Documento</th>
+                                <th>Analizar</th>
                                 <th>Visualizar</th>
                                 <th>Revisado</th>
+                                <th>Eliminar</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="doc in documentData.filter(d => d.idproperty === property._id)" :key="doc._id">
                                 <td>{{ doc.fileUrl.split('/').pop() }}</td>
                                 <td>
-                                  
-
+                                    <button type="button" class="bg-warning"
+                                        @click="handleFileChange(doc.fileUrl, doc._id)">
+                                        ANALIZAR CON IA
+                                    </button>
+                                </td>
+                                <td>
                                     <!-- Botón personalizado con íconos de archivo -->
-                                    <button class="Documents-btn"  @click.prevent="downloadFile(doc.fileUrl, doc.fileUrl.split('/').pop())">
+                                    <button class="Documents-btn"
+                                        @click.prevent="downloadFile(doc.fileUrl, doc.fileUrl.split('/').pop())">
                                         <span class="folderContainer">
                                             <!-- Icono de archivo (Fondo) -->
                                             <svg class="fileBack" width="146" height="113" viewBox="0 0 146 113"
@@ -242,6 +386,10 @@ const hasPropertiesToVerify = computed(() => filteredProperties.value.length > 0
                                     </label>
                                 </td>
 
+                                <td>
+                                    <button type="button" class="bg-danger"
+                                        @click="deleteDocument(doc._id)">Eliminar</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -258,252 +406,6 @@ const hasPropertiesToVerify = computed(() => filteredProperties.value.length > 0
     </div>
 </template>
 
-
 <style scoped>
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 15px;
-}
-
-h1 {
-    font-size: 2rem;
-    color: #343a40;
-    font-weight: bold;
-}
-
-.card {
-    border: none;
-    border-radius: 10px;
-    transition: box-shadow 0.3s ease;
-}
-
-.card-body {
-    padding: 20px;
-}
-
-.card-title {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-    color: #007bff;
-    font-weight: bold;
-}
-
-.table-responsive {
-    margin-top: 15px;
-}
-
-.table {
-    margin-bottom: 0;
-}
-
-.table th,
-.table td {
-    text-align: center;
-    vertical-align: middle;
-}
-
-.thead-dark {
-    background-color: #343a40;
-    color: white;
-}
-
-.table-hover tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
-.btn {
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-}
-
-.btn-success:disabled {
-    background-color: #ccc;
-    border-color: #ccc;
-    cursor: not-allowed;
-}
-
-.alert {
-    font-size: 1.2rem;
-    padding: 20px;
-    margin-top: 20px;
-}
-
-@media (max-width: 768px) {
-    h1 {
-        font-size: 1.5rem;
-    }
-
-    .card-title {
-        font-size: 1.2rem;
-    }
-
-    .table-responsive {
-        overflow-x: auto;
-    }
-
-    .btn {
-        font-size: 0.9rem;
-    }
-}
-
-/* From Uiverse.io by Praashoo7 */
-/* Hide the default checkbox */
-.container input {
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
-}
-
-
-
-/* Create a custom checkbox */
-.checkmark {
-    position: relative;
-    top: 0;
-    left: 0;
-    height: 3em;
-    width: 3em;
-    background-color: #171717;
-    border-radius: 10px;
-    transition: .2s ease-in-out;
-    z-index: 2;
-}
-
-.like {
-    position: relative;
-    font-size: 0.8em;
-    top: -3.5em;
-    text-align: center;
-    z-index: -1;
-}
-
-.icon {
-    margin: 0.2em;
-    fill: white;
-    transition: .4s ease-in-out;
-}
-
-.checkmark:hover {
-    background-color: white;
-}
-
-.checkmark:hover .icon {
-    fill: black;
-    transform: rotate(-8deg);
-    transform-origin: bottom left;
-}
-
-/* When the checkbox is checked, add a blue background */
-.container input:checked~.checkmark {
-    background-color: rgb(55, 205, 50);
-}
-
-.container input:checked~.like {
-    color: white;
-    animation: 0.6s up_3951;
-}
-
-.container input:checked~.checkmark .icon {
-    fill: white;
-    transform: none;
-    animation: 0.5s jump_3951;
-}
-
-/* Create the checkmark/indicator (hidden when not checked) */
-.checkmark:after {
-    content: "";
-    position: absolute;
-    display: none;
-}
-
-/* Show the checkmark when checked */
-.container input:checked~.checkmark:after {
-    display: block;
-}
-
-@keyframes up_3951 {
-    100% {
-        transform: translateY(-2em);
-    }
-}
-
-@keyframes jump_3951 {
-    50% {
-        transform-origin: center;
-        transform: translateY(-0.5em) rotate(-8deg);
-    }
-
-    100% {
-        transform-origin: center;
-        transform: translateY(0em);
-    }
-}
-.Documents-btn {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: fit-content;
-  height: 45px;
-  border: none;
-  padding: 0px 15px;
-  border-radius: 5px;
-  background-color: rgb(49, 49, 83);
-  gap: 10px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.folderContainer {
-  width: 40px;
-  height: fit-content;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  position: relative;
-}
-.fileBack {
-  z-index: 1;
-  width: 80%;
-  height: auto;
-}
-.filePage {
-  width: 50%;
-  height: auto;
-  position: absolute;
-  z-index: 2;
-  transition: all 0.3s ease-out;
-}
-.fileFront {
-  width: 85%;
-  height: auto;
-  position: absolute;
-  z-index: 3;
-  opacity: 0.95;
-  transform-origin: bottom;
-  transition: all 0.3s ease-out;
-}
-.text {
-  color: white;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-.Documents-btn:hover .filePage {
-  transform: translateY(-5px);
-}
-.Documents-btn:hover {
-  background-color: rgb(58, 58, 94);
-}
-.Documents-btn:active {
-  transform: scale(0.95);
-}
-.Documents-btn:hover .fileFront {
-  transform: rotateX(30deg);
-}
-
+@import url(./VerificacionesPendientes.css);
 </style>

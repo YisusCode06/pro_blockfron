@@ -12,5 +12,8 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
-  }
+  },
+  optimizeDeps: {
+    exclude: ['pdfjs-dist'], // Excluye pdfjs-dist del proceso de optimización
+  },
 })

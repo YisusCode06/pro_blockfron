@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import SaldoTempleWallet from '../general/SaldoTempleWallet.vue';
 
 const userData = ref(null);
 const propertyData = ref([]);
@@ -59,7 +60,8 @@ onMounted(async () => {
 <template>
   <div class="container">
     <h1 class="Titulo">Catálogo de Inmuebles</h1>
-
+    <SaldoTempleWallet/>
+    <br>
     <div class="row">
       <!-- Iteramos sobre los inmuebles filtrados para mostrarlos en tarjetas -->
       <div v-for="property in filteredProperties" :key="property._id" class="col-md-4 mb-4">

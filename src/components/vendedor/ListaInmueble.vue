@@ -2,6 +2,8 @@
 import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import Swal from 'sweetalert2'; // Importamos SweetAlert2
+import { getCookie } from '../Sidebar';
+
 
 const userData = ref(null);
 const propertyData = ref([]);
@@ -16,14 +18,6 @@ const selectProperty = (propertyId) => {
   selectedPropertyId.value = propertyId;
   console.log('Propiedad seleccionada con ID:', propertyId);
   filterDocumentsByProperty(propertyId);
-};
-
-// Función para obtener cookies
-const getCookie = (name) => {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
 };
 
 // Función para filtrar las propiedades por dueño y en venta
@@ -216,7 +210,6 @@ const getFullUrl = (fileUrl) => {
 <template>
   <div class="container">
     <h1 class="Titulo">Mis Inmuebles en Venta</h1>
-
     <div class="row">
       <!-- Iteramos sobre los inmuebles filtrados para mostrarlos en tarjetas -->
       <div v-for="property in filteredProperties" :key="property._id" class="col-md-4 mb-4">
@@ -353,83 +346,5 @@ const getFullUrl = (fileUrl) => {
 </template>
 
 <style scoped>
-.card {
-  background-color: #111827;
-  /* Color de fondo */
-  color: white;
-  /* Color del texto para asegurar que sea legible */
-}
-
-.card-img-top {
-  object-fit: cover;
-  height: 200px;
-
-}
-
-.Titulo {
-  color: white;
-  background-color: #111827;
-  text-align: center;
-  /* Centra el texto */
-  padding: 10px;
-  /* Opcional: Espaciado interno para mejorar el aspecto */
-}
-.custom-button {
-  font-family: inherit;
-  font-size: 18px;
-  background: #223851;
-  color: white;
-  padding: 0.8em 1.2em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 25px;
-  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s;
-}
-
-.custom-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
-}
-
-.custom-button:active {
-  transform: scale(0.95);
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.custom-button span {
-  display: block;
-  margin-left: 0.4em;
-  transition: all 0.3s;
-}
-
-.custom-button svg {
-  width: 18px;
-  height: 18px;
-  fill: white;
-  transition: all 0.3s;
-}
-
-.custom-button .svg-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.2);
-  margin-right: 0.5em;
-  transition: all 0.3s;
-}
-
-.custom-button:hover .svg-wrapper {
-  background-color: rgba(255, 255, 255, 0.5);
-}
-
-.custom-button:hover svg {
-  transform: rotate(45deg);
-}
-
+@import url(./ListaInmueble.css);
 </style>
